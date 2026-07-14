@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AURALIS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C12;
+    --surface: #12151F;
+    --surface-2: #171B28;
+    --line: #232838;
+    --cyan: #6EE7F0;
+    --violet: #A78BFA;
+    --amber: #F0B86E;
+    --text: #E7E9F2;
+    --muted: #7C8296;
+    --muted-2: #4C5164;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+    --font-body: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(110,231,240,0.08), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:28px 16px 40px;
+    overflow-x:hidden;
+  }
+
+  /* ---------- Header ---------- */
+  .app{ width:100%; max-width:720px; display:flex; flex-direction:column; gap:22px; }
+  header{ display:flex; align-items:center; justify-content:space-between; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{
+    width:10px; height:10px; border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 10px var(--cyan);
+  }
+  .brand-mark.speaking{ background:var(--violet); box-shadow:0 0 10px var(--violet); }
+  .brand h1{
+    font-family:var(--font-display); font-weight:700; font-size:20px; letter-spacing:0.06em;
+  }
+  .status-line{
+    font-family:var(--font-mono); font-size:11px; color:var(--muted); letter-spacing:0.04em;
+    text-transform:uppercase;
+  }
+  .status-pill{
+    font-family:var(--font-mono); font-size:11px; color:var(--muted);
+    border:1px solid var(--line); border-radius:20px; padding:6px 12px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .status-pill .dot{ width:6px; height:6px; border-radius:50%; background:var(--muted-2); }
+  .status-pill.live .dot{ background:var(--cyan); box-shadow:0 0 6px var(--cyan); }
+
+  /* ---------- Orb (signature element) ---------- */
+  .orb-wrap{
+    position:relative; height:230px; display:flex; align-items:center; justify-content:center;
+  }
+  .ring{
+    position:absolute; border-radius:50%; border:1px solid var(--line);
+    transition: all .25s ease;
+  }
+  .ring1{ width:230px; height:230px; }
+  .ring2{ width:170px; height:170px; }
+  .ring3{ width:120px; height:120px; }
+  .orb{
+    position:relative; width:84px; height:84px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #cffafe, var(--cyan) 45%, #1a5c66 100%);
+    box-shadow: 0 0 30px rgba(110,231,240,0.35), inset 0 0 20px rgba(255,255,255,0.25);
+    transition: transform .15s ease, box-shadow .2s ease, background .3s ease;
+  }
+  .orb-wrap.listening .ring1{ animation: pulse 1.8s ease-out infinite; border-color: rgba(110,231,240,0.5); }
+  .orb-wrap.listening .ring2{ animation: pulse 1.8s ease-out infinite .3s; border-color: rgba(110,231,240,0.4); }
+  .orb-wrap.listening .ring3{ animation: pulse 1.8s ease-out infinite .6s; border-color: rgba(110,231,240,0.3); }
+  .orb-wrap.listening .orb{ box-shadow: 0 0 46px rgba(110,231,240,0.55), inset 0 0 20px rgba(255,255,255,0.3); }
+  .orb-wrap.speaking .orb{
+    background: radial-gradient(circle at 35% 30%, #ede9fe, var(--violet) 45%, #4c2f8c 100%);
+    box-shadow: 0 0 46px rgba(167,139,250,0.55), inset 0 0 20px rgba(255,255,255,0.3);
+    animation: speak-bounce 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes pulse{
+    0%{ transform:scale(0.7); opacity:0.9;}
+    100%{ transform:scale(1); opacity:0;}
+  }
+  @keyframes speak-bounce{
+    from{ transform:scale(1); }
+    to{ transform:scale(1.08); }
+  }
+
+  .mic-btn{
+    position:absolute; bottom:-6px; width:52px; height:52px; border-radius:50%;
+    border:1px solid var(--line); background:var(--surface-2); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: all .2s ease; color:var(--text);
+  }
+  .mic-btn:hover{ border-color:var(--cyan); }
+  .mic-btn.active{ background:var(--cyan); border-color:var(--cyan); color:#08252a; }
+  .mic-btn svg{ width:20px; height:20px; }
+
+  /* ---------- Quick commands ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .chip{
+    font-family:var(--font-mono); font-size:12px; color:var(--muted);
+    border:1px solid var(--line); background:var(--surface); border-radius:8px;
+    padding:7px 12px; cursor:pointer; transition:all .15s ease;
+  }
+  .chip:hover{ color:var(--text); border-color:var(--cyan); }
+
+  /* ---------- Transcript ---------- */
+  .console{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:18px; display:flex; flex-direction:column; gap:14px;
+    height:340px; overflow-y:auto; scroll-behavior:smooth;
+  }
+  .console::-webkit-scrollbar{ width:6px; }
+  .console::-webkit-scrollbar-thumb{ background:var(--line); border-radius:6px; }
+
+  .msg{ display:flex; gap:10px; max-width:88%; }
+  .msg.user{ align-self:flex-end; flex-direction:row-reverse; }
+  .avatar{
+    flex-shrink:0; width:26px; height:26px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:10px; font-weight:700;
+  }
+  .msg.assistant .avatar{ background:rgba(110,231,240,0.12); color:var(--cyan); border:1px solid rgba(110,231,240,0.3); }
+  .msg.user .avatar{ background:rgba(167,139,250,0.12); color:var(--violet); border:1px solid rgba(167,139,250,0.3); }
+  .bubble{
+    background:var(--surface-2); border:1px solid var(--line); border-radius:10px;
+    padding:10px 13px; font-size:13.5px; line-height:1.5;
+  }
+  .msg.user .bubble{ background:rgba(167,139,250,0.08); border-color:rgba(167,139,250,0.25); }
+  .msg.assistant .bubble{ background:rgba(110,231,240,0.06); border-color:rgba(110,231,240,0.2); }
+  .timestamp{ font-family:var(--font-mono); font-size:9.5px; color:var(--muted-2); margin-top:4px; display:block; }
+
+  /* ---------- Input bar ---------- */
+  .input-bar{
+    display:flex; gap:8px; align-items:center;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:6px 6px 6px 14px;
+  }
+  .input-bar input{
+    flex:1; background:transparent; border:none; outline:none; color:var(--text);
+    font-family:var(--font-body); font-size:14px;
+  }
+  .input-bar input::placeholder{ color:var(--muted-2); }
+  .send-btn{
+    background:var(--cyan); border:none; color:#08252a; font-family:var(--font-mono);
+    font-size:12px; font-weight:700; border-radius:8px; padding:10px 16px; cursor:pointer;
+    letter-spacing:0.03em;
+  }
+  .send-btn:hover{ filter:brightness(1.08); }
+
+  .footnote{ font-family:var(--font-mono); font-size:10.5px; color:var(--muted-2); text-align:center; line-height:1.6; }
+  .footnote b{ color:var(--muted); }
+
+  @media (prefers-reduced-motion: reduce){
+    .orb-wrap.listening .ring1, .orb-wrap.listening .ring2, .orb-wrap.listening .ring3, .orb-wrap.speaking .orb{ animation:none; }
+  }
+
+  @media (max-width:480px){
+    .console{ height:280px; }
+    .orb-wrap{ height:200px; }
+    .ring1{ width:200px; height:200px;} .ring2{ width:150px; height:150px;} .ring3{ width:104px; height:104px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="brand-mark" id="brandMark"></div>
+      <h1>AURALIS</h1>
+    </div>
+    <div class="status-pill" id="statusPill">
+      <span class="dot"></span>
+      <span id="statusText">idle</span>
+    </div>
+  </header>
+
+  <div class="orb-wrap" id="orbWrap">
+    <div class="ring ring1"></div>
+    <div class="ring ring2"></div>
+    <div class="ring ring3"></div>
+    <div class="orb" id="orb"></div>
+    <button class="mic-btn" id="micBtn" title="Toggle listening" aria-label="Toggle listening">
+      <svg id="micIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+        <line x1="12" y1="19" x2="12" y2="23"></line>
+        <line x1="8" y1="23" x2="16" y2="23"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="chips" id="chips">
+    <div class="chip" data-cmd="what time is it">time</div>
+    <div class="chip" data-cmd="what's the date today">date</div>
+    <div class="chip" data-cmd="what's the weather">weather</div>
+    <div class="chip" data-cmd="search python asyncio">web search</div>
+    <div class="chip" data-cmd="remind me to submit the report in 1 minute">set a reminder</div>
+    <div class="chip" data-cmd="list my reminders">list reminders</div>
+    <div class="chip" data-cmd="tell me a joke">joke</div>
+    <div class="chip" data-cmd="what can you do">help</div>
+  </div>
+
+  <div class="console" id="console"></div>
+
+  <div class="input-bar">
+    <input id="textInput" type="text" placeholder="Type a command, or tap the mic and speak..." autocomplete="off" />
+    <button class="send-btn" id="sendBtn">SEND</button>
+  </div>
+
+  <div class="footnote">
+    <b>NLP</b> intent parsing &nbsp;·&nbsp; <b>Web Speech API</b> for recognition + synthesis &nbsp;·&nbsp;
+    <b>Open-Meteo</b> for live weather &nbsp;·&nbsp; browser-sandboxed, no OS-level access
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------------- DOM refs ----------------
+  const consoleEl = document.getElementById('console');
+  const orbWrap = document.getElementById('orbWrap');
+  const micBtn = document.getElementById('micBtn');
+  const brandMark = document.getElementById('brandMark');
+  const statusPill = document.getElementById('statusPill');
+  const statusText = document.getElementById('statusText');
+  const textInput = document.getElementById('textInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const chips = document.getElementById('chips');
+
+  // ---------------- State ----------------
+  let listening = false;
+  let recognition = null;
+  const reminders = []; // {text, dueAt}
+  let recognitionSupported = false;
+
+  // ---------------- Helpers: transcript ----------------
+  function addMessage(role, text){
+    const msg = document.createElement('div');
+    msg.className = 'msg ' + role;
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.textContent = role === 'user' ? 'YOU' : 'AUR';
+    const bubbleWrap = document.createElement('div');
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+    const ts = document.createElement('span');
+    ts.className = 'timestamp';
+    ts.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    bubbleWrap.appendChild(bubble);
+    bubbleWrap.appendChild(ts);
+    msg.appendChild(avatar);
+    msg.appendChild(bubbleWrap);
+    consoleEl.appendChild(msg);
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+  }
+
+  function setStatus(state){
+    // state: idle | listening | thinking | speaking
+    statusText.textContent = state;
+    statusPill.classList.toggle('live', state !== 'idle');
+    orbWrap.classList.remove('listening','speaking');
+    brandMark.classList.remove('speaking');
+    if(state === 'listening') orbWrap.classList.add('listening');
+    if(state === 'speaking'){ orbWrap.classList.add('speaking'); brandMark.classList.add('speaking'); }
+  }
+
+  // ---------------- Speech synthesis ----------------
+  function speak(text){
+    addMessage('assistant', text);
+    if(!('speechSynthesis' in window)){ return; }
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1.02;
+    utter.pitch = 1.0;
+    utter.onstart = () => setStatus('speaking');
+    utter.onend = () => setStatus(listening ? 'listening' : 'idle');
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  }
+
+  // ---------------- NLP: simple intent parser ----------------
+  function parseIntent(raw){
+    const text = raw.trim().toLowerCase();
+
+    if(/^(hi|hello|hey)\b/.test(text) || /\b(hello|hi there)\b/.test(text)){
+      return {intent:'greeting'};
+    }
+    if(/who are you|what are you|your name/.test(text)){
+      return {intent:'identity'};
+    }
+    if(/what.*(time|clock)/.test(text)){
+      return {intent:'time'};
+    }
+    if(/what.*(date|day is it)|today's date/.test(text)){
+      return {intent:'date'};
+    }
+    if(/weather/.test(text)){
+      const m = text.match(/weather (?:in|for|at) ([a-z\s]+)/);
+      return {intent:'weather', city: m ? m[1].trim() : null};
+    }
+    if(/^(search|google|look up|find)( for)? (.+)/.test(text)){
+      const m = text.match(/^(?:search|google|look up|find)(?: for)? (.+)/);
+      return {intent:'search', query: m ? m[1].trim() : null};
+    }
+    if(/remind me to (.+)/.test(text)){
+      const m = text.match(/remind me to (.+?)(?:\s+in\s+(\d+)\s*(second|sec|minute|min|hour|hr)s?)?$/);
+      const task = m ? m[1].trim() : text.replace('remind me to','').trim();
+      let delayMs = null;
+      if(m && m[2]){
+        const n = parseInt(m[2],10);
+        const unit = m[3];
+        const mult = unit.startsWith('sec') ? 1000 : unit.startsWith('min') ? 60000 : 3600000;
+        delayMs = n * mult;
+      }
+      return {intent:'reminder_add', task, delayMs};
+    }
+    if(/(list|show|what are).*remind/.test(text)){
+      return {intent:'reminder_list'};
+    }
+    if(/joke/.test(text)){
+      return {intent:'joke'};
+    }
+    if(/what can you do|help|commands|capabilities/.test(text)){
+      return {intent:'help'};
+    }
+    if(/^(stop|exit|quit|goodbye|bye)\b/.test(text)){
+      return {intent:'stop'};
+    }
+    if(/open (calculator|notepad|browser|terminal|camera)/.test(text)){
+      const m = text.match(/open (\w+)/);
+      return {intent:'system_task', app: m ? m[1] : 'app'};
+    }
+    return {intent:'fallback', raw:text};
+  }
+
+  const jokes = [
+    "I told my computer I needed a break, and it said no problem — it froze immediately.",
+    "Why do programmers prefer dark mode? Because light attracts bugs.",
+    "I would tell you a UDP joke, but you might not get it.",
+    "There are 10 types of people in the world: those who understand binary, and those who don't."
+  ];
+
+  // ---------------- Intent handlers ----------------
+  function handleIntent(parsed){
+    switch(parsed.intent){
+      case 'greeting':
+        speak("Hello. I'm Auralis, your virtual assistant. Ask me for the time, the weather, a web search, or say 'help' to see everything I can do.");
+        break;
+
+      case 'identity':
+        speak("I'm Auralis — a Python-built voice assistant running natural language intent parsing, speech recognition, and text-to-speech, all in your browser.");
+        break;
+
+      case 'time': {
+        const now = new Date();
+        speak(`It's ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} right now.`);
+        break;
+      }
+
+      case 'date': {
+        const now = new Date();
+        speak(`Today is ${now.toLocaleDateString([], {weekday:'long', year:'numeric', month:'long', day:'numeric'})}.`);
+        break;
+      }
+
+      case 'weather':
+        handleWeather(parsed.city);
+        break;
+
+      case 'search':
+        if(parsed.query){
+          speak(`Searching the web for ${parsed.query}.`);
+          window.open('https://www.google.com/search?q=' + encodeURIComponent(parsed.query), '_blank');
+        } else {
+          speak("What would you like me to search for?");
+        }
+        break;
+
+      case 'reminder_add': {
+        const due = parsed.delayMs ? Date.now() + parsed.delayMs : null;
+        reminders.push({text: parsed.task, dueAt: due});
+        if(due){
+          const secs = Math.round(parsed.delayMs/1000);
+          speak(`Reminder set: "${parsed.task}" — I'll notify you in about ${secs} seconds.`);
+          setTimeout(() => {
+            speak(`Reminder: ${parsed.task}`);
+          }, parsed.delayMs);
+        } else {
+          speak(`Got it. I've added "${parsed.task}" to your reminders.`);
+        }
+        break;
+      }
+
+      case 'reminder_list':
+        if(reminders.length === 0){
+          speak("You have no reminders yet.");
+        } else {
+          const list = reminders.map((r,i) => `${i+1}. ${r.text}`).join(' — ');
+          speak(`You have ${reminders.length} reminder${reminders.length>1?'s':''}: ${list}`);
+        }
+        break;
+
+      case 'joke':
+        speak(jokes[Math.floor(Math.random()*jokes.length)]);
+        break;
+
+      case 'help':
+        speak("I can tell you the time and date, check live weather, run a web search, set reminders, tell a joke, or open apps in this demo. Try the quick command chips, or just ask.");
+        break;
+
+      case 'stop':
+        speak("Okay, standing by. Say hello whenever you need me.");
+        if(listening) toggleListening();
+        break;
+
+      case 'system_task':
+        speak(`In a full deployment, this would trigger an OS-level automation hook to open ${parsed.app}. Browser sandboxing blocks that here, so consider this a simulated response.`);
+        break;
+
+      default:
+        speak("I didn't quite catch an intent for that. Try 'help' to see what I understand, or rephrase your command.");
+    }
+  }
+
+  // ---------------- Weather (real API, no key required) ----------------
+  async function handleWeather(city){
+    setStatus('thinking');
+    try{
+      let lat, lon, place;
+      if(city){
+        const geoRes = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name=' + encodeURIComponent(city));
+        const geo = await geoRes.json();
+        if(!geo.results || geo.results.length === 0){
+          speak(`I couldn't find a location named ${city}.`);
+          setStatus(listening ? 'listening' : 'idle');
+          return;
+        }
+        lat = geo.results[0].latitude; lon = geo.results[0].longitude;
+        place = geo.results[0].name + (geo.results[0].country ? ', ' + geo.results[0].country : '');
+        await fetchAndSpeakWeather(lat, lon, place);
+      } else if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          await fetchAndSpeakWeather(pos.coords.latitude, pos.coords.longitude, 'your location');
+        }, async () => {
+          speak("I couldn't access your location. Try saying, for example, 'weather in Tokyo'.");
+          setStatus(listening ? 'listening' : 'idle');
+        }, {timeout:6000});
+      } else {
+        speak("Location access isn't available. Try saying, for example, 'weather in Tokyo'.");
+        setStatus(listening ? 'listening' : 'idle');
+      }
+    } catch(err){
+      speak("I ran into a problem reaching the weather service. Please try again.");
+      setStatus(listening ? 'listening' : 'idle');
+    }
+  }
+
+  const weatherCodes = {
+    0:'clear sky', 1:'mostly clear', 2:'partly cloudy', 3:'overcast',
+    45:'foggy', 48:'foggy', 51:'light drizzle', 61:'light rain', 63:'moderate rain',
+    65:'heavy rain', 71:'light snow', 73:'moderate snow', 75:'heavy snow',
+    80:'rain showers', 95:'thunderstorms'
+  };
+
+  async function fetchAndSpeakWeather(lat, lon, place){
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,relative_humidity_2m&temperature_unit=celsius`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const c = data.current;
+    const desc = weatherCodes[c.weather_code] || 'unclear conditions';
+    speak(`It's currently ${Math.round(c.temperature_2m)}°C with ${desc} in ${place}, humidity around ${c.relative_humidity_2m}%.`);
+    setStatus(listening ? 'listening' : 'idle');
+  }
+
+  // ---------------- Command entry point ----------------
+  function submitCommand(text){
+    if(!text || !text.trim()) return;
+    addMessage('user', text);
+    setStatus('thinking');
+    const parsed = parseIntent(text);
+    // slight delay reads as "processing" without being gratuitous
+    setTimeout(() => handleIntent(parsed), 220);
+  }
+
+  // ---------------- Speech recognition ----------------
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(SR){
+    recognitionSupported = true;
+    recognition = new SR();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      submitCommand(transcript);
+    };
+    recognition.onerror = () => {
+      setStatus('idle');
+      listening = false;
+      micBtn.classList.remove('active');
+    };
+    recognition.onend = () => {
+      if(listening){
+        // restart for continuous-style listening
+        try{ recognition.start(); } catch(e){}
+      } else {
+        setStatus('idle');
+      }
+    };
+  }
+
+  function toggleListening(){
+    if(!recognitionSupported){
+      addMessage('assistant', "Speech recognition isn't supported in this browser. Try Chrome or Edge, or just type your command below.");
+      return;
+    }
+    listening = !listening;
+    micBtn.classList.toggle('active', listening);
+    if(listening){
+      setStatus('listening');
+      try{ recognition.start(); } catch(e){}
+    } else {
+      setStatus('idle');
+      try{ recognition.stop(); } catch(e){}
+    }
+  }
+
+  micBtn.addEventListener('click', toggleListening);
+
+  // ---------------- Text input ----------------
+  sendBtn.addEventListener('click', () => {
+    submitCommand(textInput.value);
+    textInput.value = '';
+  });
+  textInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      submitCommand(textInput.value);
+      textInput.value = '';
+    }
+  });
+
+  // ---------------- Quick chips ----------------
+  chips.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if(!chip) return;
+    submitCommand(chip.dataset.cmd);
+  });
+
+  // ---------------- Boot ----------------
+  setStatus('idle');
+  speak("Auralis online. I'm ready for a command — try the mic, or type below.");
+  if(!recognitionSupported){
+    addMessage('assistant', "Note: this browser doesn't expose the Web Speech API for recognition, so use the text box to talk to me. Speech output still works.");
+  }
+})();
+</script>
+</body>
+</html>
